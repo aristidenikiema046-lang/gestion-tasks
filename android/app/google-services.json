@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "549048893031",
+    "project_id": "gestion-tasks-app",
+    "storage_bucket": "gestion-tasks-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:549048893031:android:212d05fe1f52a201321ec2",
+        "android_client_info": {
+          "package_name": "com.example.gestion_tasks"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAdxvNb-thBcQKx75THWwOUcZno4lO_NLo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
