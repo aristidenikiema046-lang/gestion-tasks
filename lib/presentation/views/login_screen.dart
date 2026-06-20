@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/auth/auth_bloc.dart';
 import '../bloc/auth/auth_event.dart';
 import '../bloc/auth/auth_state.dart';
+import 'register_screen.dart'; // Importe ton nouvel écran
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -53,19 +54,29 @@ class _LoginScreenState extends State<LoginScreen> {
                     if (state is AuthLoading) {
                       return const CircularProgressIndicator();
                     }
-                    return ElevatedButton(
-                      style: ElevatedButton.styleFrom(minimumSize: const Size.fromHeight(50)),
-                      onPressed: () {
-                        if (_formKey.currentState!.validate()) {
-                          context.read<AuthBloc>().add(
-                                LoginRequested(
-                                  email: _emailController.text.trim(),
-                                  password: _passwordController.text.trim(),
-                                ),
-                              );
-                        }
-                      },
-                      child: const Text("Se connecter"),
+                    return Column(
+                      children: [
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(minimumSize: const Size.fromHeight(50)),
+                          onPressed: () {
+                            if (_formKey.currentState!.validate()) {
+                              context.read<AuthBloc>().add(
+                                    LoginRequested(
+                                      email: _emailController.text.trim(),
+                                      password: _passwordController.text.trim(),
+                                    ),
+                                  );
+                            }
+                          },
+                          child: const Text("Se connecter"),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.push(context, MaterialPageRoute(builder: (_) => RegisterScreen()));
+                          },
+                          child: const Text("Pas encore de compte ? S'inscrire"),
+                        ),
+                      ],
                     );
                   },
                 ),
