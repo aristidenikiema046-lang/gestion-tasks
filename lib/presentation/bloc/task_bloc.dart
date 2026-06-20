@@ -21,8 +21,6 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
     required this.updateTaskUseCase,
     required this.deleteTaskUseCase,
   }) : super(TaskLoadingState()) {
-    
-    // On associe chaque événement à sa fonction de traitement
     on<LoadTasksEvent>(_onLoadTasks);
     on<OnTasksUpdatedEvent>(_onTasksUpdated);
     on<AddTaskEvent>(_onAddTask);
@@ -32,15 +30,11 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
 
   void _onLoadTasks(LoadTasksEvent event, Emitter<TaskState> emit) {
     emit(TaskLoadingState());
-    // On ferme l'ancienne écoute si elle existe
     _tasksSubscription?.cancel();
-    
-    // On écoute le flux (Stream) en temps réel venant de Firebase
     _tasksSubscription = getTasksUseCase(event.userId).listen((tasksList) {
-      // Dès que Firebase change, on déclenche automatiquement un événement de mise à jour
       add(OnTasksUpdatedEvent(tasksList));
     }, onError: (error) {
-      add(OnTasksUpdatedEvent(const [])); // En cas d'erreur ou liste vide
+      add(OnTasksUpdatedEvent(const []));
     });
   }
 
@@ -74,7 +68,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
 
   @override
   Future<void> close() {
-    _tasksSubscription?.cancel(); // Très important pour éviter les fuites de mémoire
+    _tasksSubscription?.cancel();
     return super.close();
   }
 }

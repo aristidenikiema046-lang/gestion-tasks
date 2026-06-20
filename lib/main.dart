@@ -8,6 +8,7 @@ import 'domain/usecases/add_task_usecase.dart';
 import 'domain/usecases/update_task_usecase.dart';
 import 'domain/usecases/delete_task_usecase.dart';
 import 'domain/usecases/login_usecase.dart';
+import 'domain/usecases/register_usecase.dart'; // NOUVEAU
 import 'domain/repositories/auth_repository.dart';
 
 // -- IMPORTS DE LA COUCHE DATA --
@@ -28,27 +29,22 @@ import 'firebase_options.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  try {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-  } catch (e) {
-    debugPrint("Erreur lors de l'initialisation de Firebase : $e");
-  }
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
-  // 1. Initialisation de la couche DATA
   final taskRemoteDataSource = TaskRemoteDataSourceImpl();
   final taskRepository = TaskRepositoryImpl(remoteDataSource: taskRemoteDataSource);
 
   final authRemoteDataSource = AuthRemoteDataSourceImpl();
   final authRepository = AuthRepositoryImpl(remoteDataSource: authRemoteDataSource);
 
-  // 2. Initialisation de la couche DOMAIN
   final getTasksUseCase = GetTasksUseCase(taskRepository);
   final addTaskUseCase = AddTaskUseCase(taskRepository);
   final updateTaskUseCase = UpdateTaskUseCase(taskRepository);
   final deleteTaskUseCase = DeleteTaskUseCase(taskRepository);
   final loginUseCase = LoginUseCase(authRepository);
+  final registerUseCase = RegisterUseCase(authRepository); // NOUVEAU
 
   runApp(
     MyApp(
@@ -57,6 +53,7 @@ void main() async {
       updateTaskUseCase: updateTaskUseCase,
       deleteTaskUseCase: deleteTaskUseCase,
       loginUseCase: loginUseCase,
+      registerUseCase: registerUseCase, // NOUVEAU
       authRepository: authRepository,
     ),
   );
@@ -68,6 +65,7 @@ class MyApp extends StatelessWidget {
   final UpdateTaskUseCase updateTaskUseCase;
   final DeleteTaskUseCase deleteTaskUseCase;
   final LoginUseCase loginUseCase;
+  final RegisterUseCase registerUseCase; // NOUVEAU
   final AuthRepository authRepository;
 
   const MyApp({
@@ -77,6 +75,7 @@ class MyApp extends StatelessWidget {
     required this.updateTaskUseCase,
     required this.deleteTaskUseCase,
     required this.loginUseCase,
+    required this.registerUseCase, // NOUVEAU
     required this.authRepository,
   });
 
@@ -87,6 +86,7 @@ class MyApp extends StatelessWidget {
         BlocProvider<AuthBloc>(
           create: (context) => AuthBloc(
             loginUseCase: loginUseCase,
+            registerUseCase: registerUseCase, // NOUVEAU
             authRepository: authRepository,
           )..add(AppStarted()),
         ),
@@ -95,29 +95,20 @@ class MyApp extends StatelessWidget {
             getTasksUseCase: getTasksUseCase,
             addTaskUseCase: addTaskUseCase,
             updateTaskUseCase: updateTaskUseCase,
-            deleteTaskUseCase: deleteTaskUseCase, // Ajouté et corrigé ici !
+            deleteTaskUseCase: deleteTaskUseCase,
           ),
         ),
       ],
       child: MaterialApp(
         title: 'Gestion de Tâches',
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          primarySwatch: Colors.indigo,
-          useMaterial3: true,
-        ),
+        theme: ThemeData(primarySwatch: Colors.indigo, useMaterial3: true),
         home: BlocBuilder<AuthBloc, AuthState>(
           builder: (context, state) {
-            if (state is Authenticated) {
-              return TaskScreen(userId: state.user.uid);
-            }
-            
+            if (state is Authenticated) return TaskScreen(userId: state.user.uid);
             if (state is AuthLoading || state is AuthInitial) {
-              return const Scaffold(
-                body: Center(child: CircularProgressIndicator()),
-              );
+              return const Scaffold(body: Center(child: CircularProgressIndicator()));
             }
-
             return const LoginScreen();
           },
         ),
